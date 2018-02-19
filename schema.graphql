@@ -18,5 +18,5 @@ type Commit {
 type Reference {
     hash: String!
     name: String!
-    commits: [Commit!]!
+    commits(filter:String!): [Commit!]!
 }

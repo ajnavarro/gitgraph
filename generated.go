@@ -19,7 +19,7 @@ type Resolvers interface {
 	Query_reference(ctx context.Context, name string) (*Reference, error)
 	Query_commits(ctx context.Context, filter string) ([]Commit, error)
 
-	Reference_commits(ctx context.Context, it *Reference) ([]Commit, error)
+	Reference_commits(ctx context.Context, it *Reference, filter string) ([]Commit, error)
 }
 
 func MakeExecutableSchema(resolvers Resolvers) graphql.ExecutableSchema {
@@ -290,13 +290,21 @@ func (ec *executionContext) _reference(sel []query.Selection, it *Reference) gra
 			out.Values[i] = graphql.MarshalString(res)
 		case "commits":
 			badArgs := false
+			var arg0 string
+			if tmp, ok := field.Args["filter"]; ok {
+				tmp2, err := graphql.UnmarshalString(tmp)
+				if err != nil {
+					badArgs = true
+				}
+				arg0 = tmp2
+			}
 			if badArgs {
 				continue
 			}
 			ec.wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
 				defer ec.wg.Done()
-				res, err := ec.resolvers.Reference_commits(ec.ctx, it)
+				res, err := ec.resolvers.Reference_commits(ec.ctx, it, arg0)
 				if err != nil {
 					ec.Error(err)
 					return
@@ -881,7 +889,7 @@ func (ec *executionContext) ___Type(sel []query.Selection, it *introspection.Typ
 	return out
 }
 
-var parsedSchema = schema.MustParse("schema {\n    query: Query\n}\n\ntype Query {\n    references(filter:String!): [Reference!]!\n    reference(name: String!): Reference\n    commits(filter: String!): [Commit!]!\n}\n\ntype Commit {\n    hash: String!\n    message: String!\n    authorName: String!\n    authorEmail: String!\n}\n\ntype Reference {\n    hash: String!\n    name: String!\n    commits: [Commit!]!\n}\n")
+var parsedSchema = schema.MustParse("schema {\n    query: Query\n}\n\ntype Query {\n    references(filter:String!): [Reference!]!\n    reference(name: String!): Reference\n    commits(filter: String!): [Commit!]!\n}\n\ntype Commit {\n    hash: String!\n    message: String!\n    authorName: String!\n    authorEmail: String!\n}\n\ntype Reference {\n    hash: String!\n    name: String!\n    commits(filter:String!): [Commit!]!\n}\n")
 
 func (ec *executionContext) introspectSchema() *introspection.Schema {
 	return introspection.WrapSchema(parsedSchema)
