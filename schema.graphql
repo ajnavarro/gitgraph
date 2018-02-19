@@ -1,0 +1,22 @@
+schema {
+    query: Query
+}
+
+type Query {
+    references(filter:String!): [Reference!]!
+    reference(name: String!): Reference
+    commits(filter: String!): [Commit!]!
+}
+
+type Commit {
+    hash: String!
+    message: String!
+    authorName: String!
+    authorEmail: String!
+}
+
+type Reference {
+    hash: String!
+    name: String!
+    commits: [Commit!]!
+}

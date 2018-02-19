@@ -1,0 +1,17 @@
+required = ["github.com/vektah/gqlgen"]  
+
+[prune]
+  go-tests = true
+  unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/vektah/gqlgen"
+
+[[constraint]]
+  name = "gopkg.in/src-d/go-git.v4"
+  version = "4.1.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/araddon/qlbridge"
